@@ -5,7 +5,7 @@
 <title>DTMルートシミュレーター</title>
 <style>
   body { 
-    font-family: Arial, sans-serif; 
+    font-family: "Arial", sans-serif; 
     padding: 30px; 
     background: #f0f0f0; 
     color: #333;
@@ -81,12 +81,15 @@
 <h2>DTMルートシミュレーター</h2>
 
 <div id="description">
-このシミュレーターでは、DTMer同士でプロジェクトを順番に渡すルートを生成します。<br><br>
-<strong>使い方：</strong><br>
+このシミュレーターでは、DTMer同士でプロジェクトを順番に渡すルートを生成します。<br>
+<br>
+【使い方】<br>
 1. 人数を入力（2～20）<br>
 2. 受け渡し回数を入力<br>
-3. 「経路生成」ボタンを押す<br><br>
-【表示例】 → D3 は、そのステップで D3 に渡すことを意味します。
+3. 「経路生成」ボタンを押すとルートが表示されます<br>
+<br>
+【表示例】<br>
+→ D3 は、そのステップで D3 に渡すことを意味します。
 </div>
 
 <div id="rules">
@@ -97,19 +100,17 @@
 <label><input type="checkbox" id="rulePrev" checked> 直前のステップで渡した人には渡さない</label>
 </div>
 
-<div>
-人数: <input type="number" id="numPeople" value="5" min="2" max="20">
-受け渡し回数: <input type="number" id="steps" value="4" min="1">
-<button id="generate">経路生成</button>
-</div>
-
-<div id="output"></div>
-
 <div id="credits">
   <strong>クレジット</strong><br>
   設計: のとを<br>
   UIデザイン: ChatGPT
 </div>
+
+人数: <input type="number" id="numPeople" value="5" min="2" max="20">
+受け渡し回数: <input type="number" id="steps" value="4" min="1">
+<button id="generate">経路生成</button>
+
+<div id="output"></div>
 
 <script>
 function generatePaths(n, steps) {
@@ -128,6 +129,7 @@ function generatePaths(n, steps) {
             let candidates = [];
             for (let j=0; j<n; j++) {
                 let lastTarget = s > 0 ? paths[i][s-1] : -1;
+
                 if ((ruleSelf ? j !== i : true) &&
                     (ruleUsed ? !used[i].has(j) : true) &&
                     (ruleStep ? !stepUsed.has(j) : true) &&
@@ -137,7 +139,7 @@ function generatePaths(n, steps) {
             }
 
             if (candidates.length === 0) {
-                throw new Error("候補がありません。ルールを緩めてください。");
+                return generatePaths(n, steps); // 再生成
             }
 
             let target = candidates[Math.floor(Math.random() * candidates.length)];
@@ -146,6 +148,7 @@ function generatePaths(n, steps) {
             if (ruleStep) stepUsed.add(target);
         }
     }
+
     return paths;
 }
 
@@ -169,6 +172,7 @@ function displayDTMerPaths(paths) {
     table.appendChild(thead);
 
     const tbody = document.createElement("tbody");
+
     for (let i=0; i<n; i++) {
         const row = document.createElement("tr");
         const th = document.createElement("th");
@@ -183,6 +187,7 @@ function displayDTMerPaths(paths) {
 
         tbody.appendChild(row);
     }
+
     table.appendChild(tbody);
     output.appendChild(table);
 }
@@ -194,8 +199,7 @@ document.getElementById("generate").onclick = () => {
         const paths = generatePaths(n, steps);
         displayDTMerPaths(paths);
     } catch(e) {
-        alert(e.message);
-        document.getElementById("output").innerHTML = "";
+        alert("経路生成に失敗しました。人数・ステップを調整してください。");
     }
 };
 </script>
